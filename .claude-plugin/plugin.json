@@ -1,0 +1,11 @@
+{
+  "name": "cmux-claude-skill",
+  "version": "1.0.0",
+  "description": "Claude Code skill for cmux — AI-native macOS terminal. Verified CLI reference, browser automation, tmux migration.",
+  "author": {
+    "name": "goddaehee"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/goddaehee/cmux-claude-skill",
+  "skills": ["./skills/cmux"]
+}
