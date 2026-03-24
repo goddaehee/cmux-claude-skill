@@ -101,10 +101,25 @@ cmux clear-log
 
 ### 멀티에이전트
 ```bash
-cmux new-workspace --command "claude -p 'task A'"
+# ✅ 올바른 패턴: --dangerously-skip-permissions 필수 (파일 쓰기 등 도구 사용 허용)
+cmux new-workspace --cwd /path/to/project \
+  --command "claude -p 'task A' --dangerously-skip-permissions"
 cmux rename-workspace "agent-A"
-# 동적 ref: cmux new-split right → "OK surface:N workspace:M"
+
+# ✅ 같은 워크스페이스 내 split으로 병렬 실행 (send 크로스-워크스페이스 제한 우회)
+SPLIT=$(cmux new-split right)   # → "OK surface:N workspace:M"
+SURF=$(echo "$SPLIT" | grep -o 'surface:[0-9]*')
+cmux send --surface "$SURF" "claude -p 'task B' --dangerously-skip-permissions\n"
+
+# ❌ 잘못된 패턴: --dangerously-skip-permissions 없으면 파일 저장 등 도구 사용 불가
+cmux new-workspace --command "claude -p 'write a file'"  # 도구 거부됨
+
+# ❌ 잘못된 패턴: 다른 워크스페이스 서피스로 send 불가
+cmux send --surface surface:20 "cmd\n"  # "Surface is not a terminal" 에러
 ```
+
+> **주의:** `claude -p` 종료 시 scrollback이 비워짐. `[DONE]` echo 시그널로 완료 감지 불가.
+> 대신 결과 파일 존재 여부나 `cmux wait-for` 시그널을 활용할 것.
 
 ### 출력 캡처 & 대기
 ```bash
@@ -131,6 +146,9 @@ cmux browser click "button#submit" --snapshot-after
 - SSH/원격/CI: cmux 불가 → `command -v cmux >/dev/null || tmux ...`
 - 사이드바 명령은 cmux 터미널 내부에서만 동작
 - macOS 14+ 전용. Gatekeeper 경고 시: `xattr -cr /Applications/cmux.app`
+- **`cmux send` 범위 제한**: 다른 워크스페이스의 서피스로는 전송 불가. 같은 워크스페이스 내 `new-split`으로 생성한 서피스에만 동작
+- **`claude -p` 완료 감지**: 종료 시 scrollback이 초기화되므로 echo 시그널(`[DONE]`) 감지 불가. 대신 결과 파일 존재 확인(`ls`) 또는 `cmux wait-for` 시그널 방식 사용
+- **`claude -p` 권한**: 파일 쓰기·도구 사용 시 반드시 `--dangerously-skip-permissions` 추가
 
 ## 트러블슈팅
 | 문제 | 해결 |
@@ -139,3 +157,6 @@ cmux browser click "button#submit" --snapshot-after
 | 소켓 연결 실패 | cmux 앱 재시작. 소켓: `~/Library/Application Support/cmux/cmux.sock` |
 | `CMUX_WORKSPACE_ID` 없음 | cmux 터미널 내에서만 자동 설정 |
 | Ghostty 설정 충돌 | `~/.config/ghostty/config`에서 미지원 설정 주석 처리 |
+| `Surface is not a terminal` (send 시) | 다른 워크스페이스 서피스 대상 불가. `new-split`으로 **같은 워크스페이스** 내 서피스 생성 후 send |
+| `claude -p` 완료 후 scrollback 비어있음 | 프로세스 종료 시 scrollback 초기화됨. 완료 감지는 파일 존재 확인(`ls fizzbuzz.*`) 또는 `cmux wait-for` 시그널 사용 |
+| `claude -p`가 파일을 저장하지 않음 | `--dangerously-skip-permissions` 플래그 누락. 도구 사용(Write 등)에 필수 |
