@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.1] - 2026-03-31
+
+### Added (v0.63.1 support)
+- `ssh` command — SSH workspace creation with remote proxy
+- `omo` command — OpenCode integration
+- `codex` command — Codex CLI hooks management
+- `remote-daemon-status` — remote daemon health check
+- `new-workspace --name` option
+- `workspace-action --color` option
+
+### Changed
+- Version reference updated from v0.62.2 to v0.63.1
+
 ## [1.1.0] - 2026-03-31
 
 ### Added
