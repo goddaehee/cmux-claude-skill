@@ -7,7 +7,7 @@ cmux is a new tool (released Feb 2026), so Claude's training data doesn't cover 
 This plugin provides verified CLI references and usage patterns, ensuring AI agents
 can reliably operate cmux for workspace management, output capture, browser automation, and more.
 
-**All commands verified against `cmux --help` v0.62.2, cross-checked by Codex + multi-agent review.**
+**All commands verified against `cmux --help` v0.62.2, cross-checked by Claude Code + Codex + Gemini tri-model review.**
 
 ---
 
@@ -64,14 +64,16 @@ Add to your project or global `CLAUDE.md`:
 
 | Category | Commands |
 |----------|----------|
-| **Navigation** | `identify`, `tree`, `list-workspaces`, `list-panes`, `find-window` |
-| **Management** | `new-workspace`, `new-split`, `new-surface`, `close-workspace`, `close-surface` |
-| **Send & Capture** | `send`, `send-key`, `read-screen`, `capture-pane` (tmux compat) |
+| **Navigation** | `identify`, `tree`, `list-workspaces`, `list-panes`, `list-panels`, `find-window`, `capabilities`, `sidebar-state` |
+| **Window** | `list-windows`, `new-window`, `focus-window`, `close-window`, `move-workspace-to-window` |
+| **Management** | `new-workspace`, `new-split`, `new-pane`, `new-surface`, `close-workspace`, `close-surface`, `rename-tab`, `tab-action`, `workspace-action`, `move-surface` |
+| **Send & Capture** | `send`, `send-key`, `send-panel`, `read-screen`, `capture-pane`, `set-buffer`, `paste-buffer` |
 | **Synchronization** | `wait-for` (signal-based), polling patterns |
-| **Browser** | `browser open/goto/snapshot/click/fill/wait/eval/screenshot/console/errors` |
-| **Sidebar** | `notify`, `log`, `set-progress`, `set-status` |
-| **tmux Migration** | Full tmux-to-cmux command mapping table |
-| **AI Patterns** | Multi-agent parallel, output polling, dev server + browser E2E |
+| **Claude Integration** | `claude-hook`, `claude-teams`, `markdown` (live reload viewer) |
+| **Browser** | ~40 subcommands: navigation, snapshot, interaction, find (Playwright locators), dialog, network, cookies, storage, tabs, script injection |
+| **Sidebar** | `notify`, `log`, `set-progress`, `set-status` + read-back: `list-status`, `list-log`, `list-notifications`, `sidebar-state` |
+| **tmux Migration** | Full tmux-to-cmux mapping (20+ commands including resize, swap, break, join, buffers) |
+| **AI Patterns** | Multi-agent parallel, rename-tab, output polling, dev server + browser E2E, markdown viewer |
 
 ---
 
@@ -134,7 +136,7 @@ Plugin maintainers: re-verify commands against `cmux --help` and update SKILL.md
 
 ```
 cmux-claude-skill/
-├── skills/cmux/SKILL.md    # Full CLI reference (141 lines, v0.62.2 verified)
+├── skills/cmux/SKILL.md    # Full CLI reference (~240 lines, v0.62.2 verified)
 ├── rules/cmux-guide.md     # Minimal always-on directive (7 lines, ~66 tokens)
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin metadata
@@ -188,11 +190,13 @@ AI 에이전트를 위해 설계된 macOS 네이티브 터미널입니다.
 ## Verification History
 
 This skill was verified through:
-- `cmux --help` v0.62.2 full command cross-check
+- `cmux --help` v0.62.2 full command cross-check (v1.0.0, v1.1.0)
 - 19/19 live cmux execution tests (split, send, read-screen, browser, sidebar)
 - 4-round multi-agent review (factchecker, Korean reviewer, QA tester)
 - OpenAI Codex cross-review (2 rounds, xhigh reasoning)
 - Real-world surface:2 hardcoding bug discovery and fix
+- v1.1.0: Claude Code (Opus) + Codex (gpt-5.4) + Gemini tri-model gap analysis
+- v1.1.0: rename-tab live verification, ~70 missing commands identified and documented
 
 ---
 
