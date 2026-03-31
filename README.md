@@ -114,21 +114,90 @@ If you see `workspace:1`, `pane:1`, `surface:1` — it's working.
 
 ## When cmux Updates
 
+### 1. cmux 앱 업데이트
+
 ```bash
-# Check for cmux updates
+# 업데이트 확인
 brew outdated --cask cmux
 
-# Update cmux
+# 업데이트 실행
 brew upgrade --cask cmux
 
-# Verify new version
-cmux version
+# ⚠️ 중요: cmux 앱 재시작 필수 (CLI만 교체되고 실행 중인 앱은 구 버전)
+# cmux 앱 종료 후 다시 실행, 또는:
+open -a cmux
 
-# Update this plugin
+# 버전 확인
+cmux version
+```
+
+### 2. 스킬 플러그인 업데이트
+
+```bash
+# 플러그인으로 설치한 경우
 claude plugin update cmux-claude-skill
+
+# 수동 설치(파일 복사)한 경우
+git -C /path/to/cmux-claude-skill pull origin main
+cp /path/to/cmux-claude-skill/skills/cmux/SKILL.md ~/.claude/skills/cmux/SKILL.md
+cp /path/to/cmux-claude-skill/rules/cmux-guide.md ~/.claude/rules/cmux-guide.md
+```
+
+### 3. 원스텝 업데이트 스크립트
+
+```bash
+#!/bin/bash
+# cmux-update.sh — cmux 앱 + 스킬 플러그인 한번에 업데이트
+set -e
+
+echo "=== cmux 앱 업데이트 ==="
+brew upgrade --cask cmux 2>/dev/null && echo "✅ cmux 업그레이드 완료" || echo "ℹ️ 이미 최신 버전"
+echo "cmux $(cmux version 2>&1 | head -1)"
+
+echo ""
+echo "=== 스킬 플러그인 업데이트 ==="
+SKILL_DIR="${CMUX_SKILL_DIR:-$HOME/cmux-claude-skill}"
+if [ -d "$SKILL_DIR/.git" ]; then
+  git -C "$SKILL_DIR" pull origin main
+  cp "$SKILL_DIR/skills/cmux/SKILL.md" ~/.claude/skills/cmux/SKILL.md
+  cp "$SKILL_DIR/rules/cmux-guide.md" ~/.claude/rules/cmux-guide.md
+  echo "✅ 스킬 동기화 완료"
+else
+  echo "⚠️ 스킬 디렉토리 없음: $SKILL_DIR"
+  echo "   설치: git clone https://github.com/goddaehee/cmux-claude-skill.git $SKILL_DIR"
+fi
+
+echo ""
+echo "=== ⚠️ cmux 앱을 재시작하세요 ==="
+echo "   신규 기능(set-color 등)은 앱 재시작 후 동작합니다."
 ```
 
 Plugin maintainers: re-verify commands against `cmux --help` and update SKILL.md.
+
+---
+
+## Workspace Color Customization
+
+워크스페이스별 색상을 지정하면 사이드바에서 프로젝트를 빠르게 구분할 수 있습니다.
+
+```bash
+# 네임드 컬러 (16종)
+# Red, Crimson, Orange, Amber, Olive, Green, Teal, Aqua,
+# Blue, Navy, Indigo, Purple, Magenta, Rose, Brown, Charcoal
+
+# 워크스페이스에 색상 적용
+cmux workspace-action --workspace workspace:1 --action set-color --color Blue
+cmux workspace-action --workspace workspace:2 --action set-color --color Amber
+cmux workspace-action --workspace workspace:3 --action set-color --color Green
+
+# HEX 코드도 지원
+cmux workspace-action --action set-color --color "#C0392B"
+
+# 색상 제거
+cmux workspace-action --action clear-color
+```
+
+> **Tip:** AI 에이전트에게 "워크스페이스 색상 다르게 지정해줘"라고 요청하면 자동으로 구분 색상을 적용합니다.
 
 ---
 
@@ -136,7 +205,7 @@ Plugin maintainers: re-verify commands against `cmux --help` and update SKILL.md
 
 ```
 cmux-claude-skill/
-├── skills/cmux/SKILL.md    # Full CLI reference (~240 lines, v0.62.2 verified)
+├── skills/cmux/SKILL.md    # Full CLI reference (~275 lines, v0.63.1 verified)
 ├── rules/cmux-guide.md     # Minimal always-on directive (7 lines, ~66 tokens)
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin metadata
