@@ -8,7 +8,7 @@
     {
       "name": "cmux-claude-skill",
       "description": "Verified CLI reference, browser automation, and tmux migration guide for cmux (AI-native macOS terminal)",
-      "version": "1.0.0",
+      "version": "1.1.1",
       "author": {
         "name": "goddaehee"
       },
@@ -18,5 +18,5 @@
       "keywords": ["cmux", "terminal", "tmux", "browser-automation", "macos"]
     }
   ],
-  "version": "1.0.0"
+  "version": "1.1.1"
 }
